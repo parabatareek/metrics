@@ -12,25 +12,25 @@ const (
 	reportInterval = 10 * time.Second
 )
 
-func GetMetricsName() []string {
-	return []string{"Alloc", "BuckHashSys", "Frees", "GCCPUFraction", "GCSys", "HeapAlloc", "HeapIdle", "HeapInuse", "HeapObjects", "HeapReleased", "HeapSys", "LastGC", "Lookups", "MCacheInuse", "MCacheSys", "MSpanInuse", "MSpanSys", "Mallocs", "NextGC", "NumForcedGC", "NumGC", "OtherSys", "PauseTotalNs", "StackInuse", "StackSys", "Sys", "TotalAlloc"}
-}
-
-func GetMetrics() (metrics map[string]float64) {
-	rtm := runtime.MemStats{}
-	runtime.ReadMemStats(&rtm)
-	statsVal := reflect.ValueOf(rtm)
-	statsType := reflect.TypeOf(rtm)
-
-	for _, val := range GetMetricsName() {
-		for i := 0; i < statsVal.NumField(); i++ {
-			if val == statsType.Field(i).Name {
-				metrics[val] = statsVal.Field(i).Float()
-			}
-		}
-	}
-	return metrics
-}
+//func GetMetricsName() []string {
+//	return []string{"Alloc", "BuckHashSys", "Frees", "GCCPUFraction", "GCSys", "HeapAlloc", "HeapIdle", "HeapInuse", "HeapObjects", "HeapReleased", "HeapSys", "LastGC", "Lookups", "MCacheInuse", "MCacheSys", "MSpanInuse", "MSpanSys", "Mallocs", "NextGC", "NumForcedGC", "NumGC", "OtherSys", "PauseTotalNs", "StackInuse", "StackSys", "Sys", "TotalAlloc"}
+//}
+//
+//func GetMetrics() (metrics map[string]float64) {
+//	rtm := runtime.MemStats{}
+//	runtime.ReadMemStats(&rtm)
+//	statsVal := reflect.ValueOf(rtm)
+//	statsType := reflect.TypeOf(rtm)
+//
+//	for _, val := range GetMetricsName() {
+//		for i := 0; i < statsVal.NumField(); i++ {
+//			if val == statsType.Field(i).Name {
+//				metrics[val] = statsVal.Field(i).Float()
+//			}
+//		}
+//	}
+//	return metrics
+//}
 
 type Metrics struct {
 	Alloc         float64
@@ -76,8 +76,8 @@ func NewMetrics(m *Metrics) *Metrics {
 
 	// Запись текущих значений runtime в структуру
 	for i := 0; i < metType.NumField(); i++ {
-		fieldName := rtmType.Field(i).Name
-		metVal.Field(i).SetFloat(rtmVal.FieldByName(fieldName).Float())
+		//fieldName := rtmType.Field(i).Name
+		metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
 	}
 
 	// Случайное значение для m.RandomValue
@@ -85,6 +85,32 @@ func NewMetrics(m *Metrics) *Metrics {
 	m.RandomValue = rand.Float64()
 
 	return m
+}
+
+// Запись данных runtime в Metrics
+func (m *Metrics) Update() {
+	var rtm *runtime.MemStats
+
+	metType := reflect.TypeOf(&m)
+	metVal := reflect.ValueOf(&m)
+	rtmType := reflect.TypeOf(rtm)
+	rtmVal := reflect.ValueOf(rtm)
+
+	for {
+		runtime.ReadMemStats(rtm)
+
+		time.After(pollInterval)
+		for i := 0; i < metType.NumField(); i++ {
+			metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
+		}
+
+		// Случайное значение для m.RandomValue
+		rand.Seed(time.Now().UnixNano())
+		m.RandomValue = rand.Float64()
+
+		// Увеличиваем счетчик запросов к runtime
+		m.PollCount += 1
+	}
 }
 
 //
