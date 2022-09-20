@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"math/rand"
 	"reflect"
 	"runtime"
 	"time"
@@ -31,38 +32,61 @@ func GetMetrics() (metrics map[string]float64) {
 	return metrics
 }
 
-//
-//type Metrics struct {
-//	Alloc
-//	BuckHashSys
-//	Frees
-//	GCCPUFraction
-//	GCSys
-//	HeapAlloc
-//	HeapIdle
-//	HeapInuse
-//	HeapObjects
-//	HeapReleased
-//	HeapSys
-//	LastGC
-//	Lookups
-//	MCacheInuse
-//	MCacheSys
-//	MSpanInuse
-//	MSpanSys
-//	Mallocs
-//	NextGC
-//	NumForcedGC
-//	NumGC
-//	OtherSys
-//	PauseTotalNs
-//	StackInuse
-//	StackSys
-//	Sys
-//	TotalAlloc
-//	RandomValue
-//	PollCount     int64
-//}
+type Metrics struct {
+	Alloc         float64
+	BuckHashSys   float64
+	Frees         float64
+	GCCPUFraction float64
+	GCSys         float64
+	HeapAlloc     float64
+	HeapIdle      float64
+	HeapInuse     float64
+	HeapObjects   float64
+	HeapReleased  float64
+	HeapSys       float64
+	LastGC        float64
+	Lookups       float64
+	MCacheInuse   float64
+	MCacheSys     float64
+	MSpanInuse    float64
+	MSpanSys      float64
+	Mallocs       float64
+	NextGC        float64
+	NumForcedGC   float64
+	NumGC         float64
+	OtherSys      float64
+	PauseTotalNs  float64
+	StackInuse    float64
+	StackSys      float64
+	Sys           float64
+	TotalAlloc    float64
+	RandomValue   float64
+	PollCount     int64
+}
+
+// Конструктор Metrics{}
+func NewMetrics(m *Metrics) *Metrics {
+	var rtm runtime.MemStats
+	runtime.ReadMemStats(&rtm)
+
+	metType := reflect.TypeOf(&m)
+	metVal := reflect.ValueOf(&m)
+	rtmType := reflect.TypeOf(rtm)
+	rtmVal := reflect.ValueOf(rtm)
+
+	// Запись текущих значений runtime в структуру
+	for i := 0; i < metType.NumField(); i++ {
+		fieldName := rtmType.Field(i).Name
+		metVal.Field(i).SetFloat(rtmVal.FieldByName(fieldName).Float())
+	}
+
+	// Случайное значение для m.RandomValue
+	rand.Seed(time.Now().UnixNano())
+	m.RandomValue = rand.Float64()
+
+	return m
+}
+
 //
 //func NewMetrics() *Metrics {
 //	var rtm runtime.MemStats
