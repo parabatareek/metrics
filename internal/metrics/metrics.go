@@ -65,26 +65,34 @@ type Metrics struct {
 }
 
 // Конструктор Metrics{}
-func NewMetrics(m *Metrics) *Metrics {
+func NewMetrics() *Metrics {
 	var rtm runtime.MemStats
 	runtime.ReadMemStats(&rtm)
-
-	metType := reflect.TypeOf(&m)
-	metVal := reflect.ValueOf(&m)
+	m := *new(Metrics)
+	metType := reflect.TypeOf(m)
+	metVal := reflect.ValueOf(m)
 	rtmType := reflect.TypeOf(rtm)
 	rtmVal := reflect.ValueOf(rtm)
 
 	// Запись текущих значений runtime в структуру
-	for i := 0; i < metType.NumField(); i++ {
+	for i := 0; i < rtmType.NumField(); i++ {
+
+		if metType.Field(i).Name == rtmType.Field(i).Name {
+			switch rtmVal.Field(i).Kind() {
+			case reflect.Uint:
+				v := float64(rtmVal.Field(i).Uint())
+				metVal.Field(i).SetFloat(v)
+			}
+		}
 		//fieldName := rtmType.Field(i).Name
-		metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
+		//metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
 	}
 
 	// Случайное значение для m.RandomValue
 	rand.Seed(time.Now().UnixNano())
 	m.RandomValue = rand.Float64()
 
-	return m
+	return &m
 }
 
 // Запись данных runtime в Metrics
