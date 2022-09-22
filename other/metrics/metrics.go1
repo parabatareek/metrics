@@ -75,18 +75,7 @@ func NewMetrics() *Metrics {
 	rtmVal := reflect.ValueOf(rtm)
 
 	// Запись текущих значений runtime в структуру
-	for i := 0; i < rtmType.NumField(); i++ {
-
-		if metType.Field(i).Name == rtmType.Field(i).Name {
-			switch rtmVal.Field(i).Kind() {
-			case reflect.Uint:
-				v := float64(rtmVal.Field(i).Uint())
-				metVal.Field(i).SetFloat(v)
-			}
-		}
-		//fieldName := rtmType.Field(i).Name
-		//metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
-	}
+	setStructValues(metType, metVal, rtmType, rtmVal)
 
 	// Случайное значение для m.RandomValue
 	rand.Seed(time.Now().UnixNano())
@@ -95,21 +84,40 @@ func NewMetrics() *Metrics {
 	return &m
 }
 
+func setStructValues(metType reflect.Type, metVal reflect.Value, rtmType reflect.Type, rtmVal reflect.Value) {
+	for i := 0; i < rtmType.NumField(); i++ {
+		metName := metType.Field(i).Name
+		rtmName := rtmType.Field(i).Name
+		kind := rtmVal.Field(i).Kind()
+		if metName == rtmName {
+			switch kind {
+			case reflect.Uint32, reflect.Uint64:
+				//v := float64()
+				//rtmVal.Field(i).SetFloat(metVal.Field(i).Float())
+				//metVal.Field(i).Set(rtmVal.Field(i)) //.Set(rtmVal.Field(i))
+			case reflect.Float64, reflect.Float32:
+				v := rtmVal.Field(i).Float()
+				metVal.Field(i).SetFloat(v)
+			}
+		}
+	}
+}
+
 // Запись данных runtime в Metrics
 func (m *Metrics) Update() {
 	var rtm *runtime.MemStats
 
 	metType := reflect.TypeOf(&m)
-	metVal := reflect.ValueOf(&m)
-	rtmType := reflect.TypeOf(rtm)
-	rtmVal := reflect.ValueOf(rtm)
+	//metVal := reflect.ValueOf(&m)
+	//rtmType := reflect.TypeOf(rtm)
+	//rtmVal := reflect.ValueOf(rtm)
 
 	for {
 		runtime.ReadMemStats(rtm)
 
 		time.After(pollInterval)
 		for i := 0; i < metType.NumField(); i++ {
-			metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
+			//metVal.FieldByName(rtmType.Field(i).Name).SetFloat(rtmVal.Field(i).Float())
 		}
 
 		// Случайное значение для m.RandomValue
