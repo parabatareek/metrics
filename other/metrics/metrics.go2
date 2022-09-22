@@ -1,0 +1,104 @@
+package metrics
+
+import (
+	"math/rand"
+	"runtime"
+	"time"
+)
+
+const (
+	pollInterval   = 2 * time.Second
+	reportInterval = 10 * time.Second
+)
+
+func getMetricsName() []string {
+	return []string{
+		"Alloc",
+		"BuckHashSys",
+		"Frees",
+		"GCCPUFraction",
+		"GCSys",
+		"HeapAlloc",
+		"HeapIdle",
+		"HeapInuse",
+		"HeapObjects",
+		"HeapReleased",
+		"HeapSys",
+		"LastGC",
+		"Lookups",
+		"MCacheInuse",
+		"MCacheSys",
+		"MSpanInuse",
+		"MSpanSys",
+		"Mallocs",
+		"NextGC",
+		"NumForcedGC",
+		"NumGC",
+		"OtherSys",
+		"PauseTotalNs",
+		"StackInuse",
+		"StackSys",
+		"Sys",
+		"TotalAlloc",
+	}
+}
+
+type Metrics struct {
+	Metrics     runtime.MemStats
+	PollCount   int64
+	RandomValue float64
+}
+
+func NewMetrics() *Metrics {
+	var rtm runtime.MemStats
+	runtime.ReadMemStats(&rtm)
+
+	rand.Seed(time.Now().UnixNano())
+
+	return &Metrics{Metrics: rtm,
+		PollCount:   0,
+		RandomValue: rand.Float64()}
+}
+
+func (m *Metrics) Update() {
+	for {
+		<-time.After(pollInterval)
+		runtime.ReadMemStats(&m.Metrics)
+
+		m.PollCount += 1
+
+		rand.Seed(time.Now().UnixNano())
+		m.RandomValue = rand.Float64()
+	}
+}
+
+//}
+//
+//
+//	metType := reflect.TypeOf(m.Metrics)
+//	metValue := reflect.ValueOf(m.Metrics)
+//
+//	metricNames := getMetricsName()
+//
+//
+//
+//		for i := 0; i < metType.NumField(); i++ {
+//			metName := metType.Field(i).Name
+//			metKind := metValue.Field(i).Kind()
+//			if metName == metricNames[i] {
+//				switch metKind {
+//				case reflect.Uint32, reflect.Uint64:
+//					fmt.Println("Hello!")
+//				default:
+//					fmt.Println("Default!")
+//v := float64()
+//rtmVal.Field(i).SetFloat(metVal.Field(i).Float())
+//metVal.Field(i).Set(rtmVal.Field(i)) //.Set(rtmVal.Field(i))
+//case reflect.Float64, reflect.Float32:
+//	v := rtmVal.Field(i).Float()
+//	metVal.Field(i).SetFloat(v)
+//				}
+//			}
+//		}
+//	}
+//}
