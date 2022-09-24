@@ -48,11 +48,11 @@ func NewMetrics() *Metrics {
 	return &metrics
 }
 
-func (metrics Metrics) Update() {
+func (metrics *Metrics) Update() {
 	var rtm runtime.MemStats
 	runtime.ReadMemStats(&rtm)
 
-	setMetrics(&metrics)
+	setMetrics(metrics)
 	metrics.PollCount += 1
 }
 
