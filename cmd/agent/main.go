@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/parabatareek/metrics.git/internal/metrics"
 	"time"
 )
@@ -13,5 +12,16 @@ const (
 
 func main() {
 	metrics := metrics.NewMetrics()
-	fmt.Println(metrics)
+	go runGetStats(metrics)
+
+	//fmt.Println(metrics)
+	//fmt.Println(metrics)
+}
+
+func runGetStats(metrics *metrics.Metrics) {
+	ticker := time.NewTicker(pollInterval)
+	for {
+		<-ticker.C
+		metrics.Update()
+	}
 }
