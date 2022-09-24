@@ -42,6 +42,20 @@ type Metrics struct {
 // Конструктор Metrics
 func NewMetrics() *Metrics {
 	var metrics Metrics
+
+	setMetrics(&metrics)
+
+	return &metrics
+}
+
+func (m Metrics) Update() {
+	var rtm runtime.MemStats
+	runtime.ReadMemStats(&rtm)
+
+}
+
+// Установка значений Metrics, значениями runtime.MemStats
+func setMetrics(metrics *Metrics) {
 	var rtm runtime.MemStats
 	runtime.ReadMemStats(&rtm)
 
@@ -50,27 +64,29 @@ func NewMetrics() *Metrics {
 	rtmVal := reflect.ValueOf(rtm)
 
 	// Рефлексия Metrics
-	metType := reflect.TypeOf(metrics)
 	// Разыменование структуры Metrics для доступа к записи значений в структуру
 	// https://golang-blog.blogspot.com/2020/06/laws-of-reflection-in-golang.html
-	metVal := reflect.ValueOf(&metrics).Elem()
+	metVal := reflect.ValueOf(metrics).Elem()
 
 	// Запись значений runtime в структуру Metrics
 	for i := 0; i < rtmType.NumField(); i++ {
 		rtmFieldName := rtmType.Field(i).Name
-		metFieldName := metType.Field(i).Name
+		metField := metVal.FieldByName(rtmFieldName)
 
-		if rtmFieldName == metFieldName {
-			field := metVal.FieldByName(metFieldName)
+		if metField.IsValid() {
+			// Вызов метода приведения типов
 			newVal := getValue(rtmVal.Field(i))
-			field.SetFloat(newVal)
+			// Запись значений в metrics
+			metField.SetFloat(newVal)
 		}
 	}
+
+	// Запись значения metrics.RandomValue
 	rand.Seed(time.Now().UnixNano())
 	metrics.RandomValue = rand.Float64()
-	return &metrics
 }
 
+// Приведение типов reflect.Value к float64
 func getValue(fieldVal reflect.Value) (val float64) {
 	switch fieldVal.Kind() {
 	case reflect.Uint32, reflect.Uint64:

@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
-	Metrics := metrics.NewMetrics()
-	fmt.Println(Metrics)
+	metrics := metrics.NewMetrics()
+	fmt.Println(metrics)
+	metrics.Update()
 }
