@@ -16,7 +16,7 @@ import (
 const (
 	pollInterval   = 2 * time.Second
 	reportInterval = 10 * time.Second
-	endpoint       = "127.0.0.1:8080"
+	endpoint       = "127.0.0.1"
 )
 
 func main() {
@@ -78,7 +78,7 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 		fieldName := statType.Field(i).Name
 		fieldVal := getStrValue(statVal.Field(i))
 
-		params := fmt.Sprintf("<%s>/<%s>/<%s>", fieldKind, fieldName, fieldVal)
+		params := fmt.Sprintf("<%v>/<%s>/<%s>", fieldKind, fieldName, fieldVal)
 		urlStr += params
 
 		data.Set("url", urlStr)
@@ -86,7 +86,6 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 		request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(data.Encode()))
 		if err != nil {
 			log.Fatal(err)
-			continue
 		}
 
 		request.Header.Add("Content-Type", "text/plain")
