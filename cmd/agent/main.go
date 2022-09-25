@@ -68,6 +68,7 @@ func runReadStats(channel chan *metrics.Metrics) {
 
 // Подготовка и отправка данных на сервер
 func runSendStats(dataMetrics *metrics.Metrics) {
+	//TODO: необходим рефакторинг
 	statType := reflect.TypeOf(dataMetrics).Elem()
 	statVal := reflect.ValueOf(dataMetrics).Elem()
 
@@ -76,6 +77,8 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
+
+	client := &http.Client{}
 
 	for i := 0; i < statType.NumField(); i++ {
 		fieldKind := statVal.Field(i).Kind()
@@ -95,5 +98,7 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 
 		request.Header.Add("Content-Type", "text/plain")
 		request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+
+		_, err = client.Do(request)
 	}
 }
