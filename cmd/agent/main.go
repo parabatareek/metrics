@@ -99,6 +99,10 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 		request.Header.Add("Content-Type", "text/plain")
 		request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
 
-		_, err = client.Do(request)
+		response, err = client.Do(request)
+		if err != nil{
+			log.Fatal(err)
+		}
+		defer response.
 	}
 }
