@@ -95,12 +95,12 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 }
 
 // Приведение типов reflect.Value к float64
-func getStrValue(fieldVal reflect.Value) (val string) {
-	switch fieldVal.Kind() {
-	case reflect.Uint32, reflect.Uint64:
-		val = string(fieldVal.Uint())
-	case reflect.Float32, reflect.Float64:
-		val = strconv.FormatFloat(fieldVal.Float(), 'f', -1, 64)
-	}
-	return
-}
+//func getStrValue(fieldVal reflect.Value) (val string) {
+//	switch fieldVal.Kind() {
+//	case reflect.Uint32, reflect.Uint64:
+//		val = string(fieldVal.Uint())
+//	case reflect.Float32, reflect.Float64:
+//		val = strconv.FormatFloat(fieldVal.Float(), 'f', -1, 64)
+//	}
+//	return
+//}
