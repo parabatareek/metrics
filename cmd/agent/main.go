@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/parabatareek/metrics.git/internal/metrics"
 	"log"
@@ -20,8 +21,8 @@ const (
 
 func main() {
 	// Запуск сервера
-	server := &http.Server{Addr: "127.0.0.1:8080"}
-	go server.ListenAndServe()
+	//server := &http.Server{Addr: "127.0.0.1:8080"}
+	//go server.ListenAndServe()
 
 	// Инициализация канала
 	getChannel := make(chan *metrics.Metrics)
@@ -73,8 +74,8 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 	data := url.Values{}
 	urlStr := "/update/"
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	//defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
 	for i := 0; i < statType.NumField(); i++ {
 		fieldKind := statVal.Field(i).Kind()
@@ -86,8 +87,8 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 
 		data.Set("url", urlStr)
 
-		request, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBufferString(data.Encode()))
-		//request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(data.Encode()))
+		//request, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBufferString(data.Encode()))
+		request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(data.Encode()))
 		if err != nil {
 			log.Fatal(err)
 		}
