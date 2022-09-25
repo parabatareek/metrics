@@ -20,6 +20,10 @@ const (
 )
 
 func main() {
+	// Запуск сервера
+	server := &http.Server{Addr: "127.0.0.1:8080"}
+	go server.ListenAndServe()
+
 	// Инициализация канала
 	getChannel := make(chan *metrics.Metrics)
 	defer close(getChannel)
@@ -77,7 +81,6 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 		fieldKind := statVal.Field(i).Kind()
 		fieldName := statType.Field(i).Name
 		fieldVal := statVal.Field(i)
-		//fieldVal := getStrValue(statVal.Field(i))
 
 		params := fmt.Sprintf("<%v>/<%s>/<%v>", fieldKind, fieldName, fieldVal)
 		urlStr += params
@@ -93,14 +96,3 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 		request.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
 	}
 }
-
-// Приведение типов reflect.Value к float64
-//func getStrValue(fieldVal reflect.Value) (val string) {
-//	switch fieldVal.Kind() {
-//	case reflect.Uint32, reflect.Uint64:
-//		val = string(fieldVal.Uint())
-//	case reflect.Float32, reflect.Float64:
-//		val = strconv.FormatFloat(fieldVal.Float(), 'f', -1, 64)
-//	}
-//	return
-//}
