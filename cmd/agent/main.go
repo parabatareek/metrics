@@ -76,9 +76,10 @@ func runSendStats(dataMetrics *metrics.Metrics) {
 	for i := 0; i < statType.NumField(); i++ {
 		fieldKind := statVal.Field(i).Kind()
 		fieldName := statType.Field(i).Name
-		fieldVal := getStrValue(statVal.Field(i))
+		fieldVal := statVal.Field(i)
+		//fieldVal := getStrValue(statVal.Field(i))
 
-		params := fmt.Sprintf("<%v>/<%s>/<%s>", fieldKind, fieldName, fieldVal)
+		params := fmt.Sprintf("<%v>/<%s>/<%v>", fieldKind, fieldName, fieldVal)
 		urlStr += params
 
 		data.Set("url", urlStr)
