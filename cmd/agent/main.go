@@ -17,8 +17,8 @@ import (
 const (
 	pollInterval   = 2 * time.Second
 	reportInterval = 10 * time.Second
-	endpoint       = "http://127.0.0.1:8080"
-	urlUpdate      = "/update/"
+	endpoint       = "http://127.0.0.1:8080/update/"
+	//urlUpdate      = "/update/"
 )
 
 func main() {
@@ -106,10 +106,9 @@ func setParams(dataMetrics *metrics.Metrics) *url.Values {
 		fieldVal := statVal.Field(i)
 
 		params := fmt.Sprintf("<%v>/<%s>/<%v>", fieldKind, fieldName, fieldVal)
-		urlParams := urlUpdate + params
+		//urlParams := urlUpdate + params
 
-		urlData.Set("url", urlParams)
-		return &urlData
+		urlData.Set(fieldName, params)
 	}
-	return nil
+	return &urlData
 }
