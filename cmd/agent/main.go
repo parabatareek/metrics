@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/parabatareek/metrics.git/internal/metrics"
-	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -29,7 +28,7 @@ func main() {
 	go updStats(dataMetrics)
 
 	// Отправка данных в гоурутине
-	sendStats(dataMetrics)
+	go sendStats(dataMetrics)
 }
 
 // Обновление значений объекта Metrics
@@ -115,11 +114,5 @@ func getResponse(request *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(response.Body)
-
+	defer response.Body.Close()
 }
