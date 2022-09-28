@@ -88,7 +88,7 @@ func getParams(dataMetrics *metrics.Metrics) map[string]string {
 
 func getRequest(urlData string) *http.Request {
 	// Инициализация контекста
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 11*time.Second)
 	defer cancel()
 
 	// Инициализация запроса
