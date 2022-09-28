@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strconv"
 	"time"
@@ -47,7 +48,9 @@ func sendStats(datametrics *metrics.Metrics) {
 	// Формирование данных для отправки
 	urlData := getParams(datametrics)
 	for _, strings := range urlData {
-		request := getRequest(strings)
+		hx := url.Values{}
+		hx.Set("url", strings)
+		request := getRequest(&hx)
 		getResponse(request)
 	}
 
@@ -86,18 +89,19 @@ func getParams(dataMetrics *metrics.Metrics) map[string]string {
 	return urlData
 }
 
-func getRequest(urlData string) *http.Request {
+func getRequest(urlData *url.Values) *http.Request {
 	// Инициализация контекста
-	ctx, cancel := context.WithTimeout(context.Background(), 11*time.Second)
-	defer cancel()
+	ctx := context.Background()
+	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	//defer cancel()
 
 	// Инициализация запроса
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(urlData))
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(urlData.Encode()))
 	if err != nil {
 		log.Fatal(err)
 	}
 	request.Header.Add("Content-Type", "text/plain")
-	request.Header.Add("Content-Length", strconv.Itoa(len(urlData)))
+	request.Header.Add("Content-Length", strconv.Itoa(len(urlData.Encode())))
 
 	return request
 }
