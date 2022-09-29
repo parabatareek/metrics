@@ -83,11 +83,11 @@ func getParams(dataMetrics *metrics.Metrics) map[string]string {
 // Формирование request
 func getRequest(urlData *url.Values) *http.Request {
 	// Инициализация контекста
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
 
 	// Инициализация запроса
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(urlData.Encode()))
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, endpoint, bytes.NewBufferString(urlData.Encode()))
 	if err != nil {
 		log.Fatal(err)
 	}
