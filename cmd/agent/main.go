@@ -34,39 +34,31 @@ func main() {
 // Обновление значений объекта Metrics
 func updStats(dataMetrics *metrics.Metrics) {
 	ticker := time.NewTicker(pollInterval)
-	<-ticker.C
+	for {
+		<-ticker.C
+		dataMetrics.Update()
+	}
 
-	dataMetrics.Update()
-	updStats(dataMetrics)
 }
 
 func sendStats(datametrics *metrics.Metrics) {
-	ticker := time.NewTicker(reportInterval)
-	<-ticker.C
-
-	// Формирование данных для отправки
-	urlData := getParams(datametrics)
-	for _, strings := range urlData {
-		urlData := url.Values{}
-		urlData.Set("url", strings)
-		request := getRequest(&urlData)
-		getResponse(request)
-	}
-
-	// Формирование request
-	//request := getRequest(urlData)
-
 	// Инициализация клиента
-	//client := &http.Client{}
+	client := &http.Client{}
 
-	// Отпавка данных
-	//response, err := client.Do(request)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//defer response.Body.Close()
-	//
-	//sendStats(datametrics)
+	ticker := time.NewTicker(reportInterval)
+
+	for {
+		<-ticker.C
+
+		// Формирование данных для отправки
+		urlData := getParams(datametrics)
+		for key, param := range urlData {
+			urlData := url.Values{}
+			urlData.Set(key, param)
+			request := getRequest(&urlData)
+			getResponse(request, client)
+		}
+	}
 }
 
 // Формирование данных для отправки
@@ -88,6 +80,7 @@ func getParams(dataMetrics *metrics.Metrics) map[string]string {
 	return urlData
 }
 
+// Формирование request
 func getRequest(urlData *url.Values) *http.Request {
 	// Инициализация контекста
 	ctx, cancel := context.WithCancel(context.Background())
@@ -104,10 +97,8 @@ func getRequest(urlData *url.Values) *http.Request {
 	return request
 }
 
-func getResponse(request *http.Request) {
-	// Инициализация клиента
-	client := &http.Client{}
-
+// Отправка request
+func getResponse(request *http.Request, client *http.Client) {
 	// Отпавка данных
 	response, err := client.Do(request)
 	if err != nil {
