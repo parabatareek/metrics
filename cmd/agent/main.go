@@ -28,7 +28,7 @@ func main() {
 	go updStats(dataMetrics)
 
 	// Отправка данных в гоурутине
-	go sendStats(dataMetrics)
+	sendStats(dataMetrics)
 }
 
 // Обновление значений объекта Metrics
@@ -47,9 +47,9 @@ func sendStats(datametrics *metrics.Metrics) {
 	// Формирование данных для отправки
 	urlData := getParams(datametrics)
 	for _, strings := range urlData {
-		hx := url.Values{}
-		hx.Set("url", strings)
-		request := getRequest(&hx)
+		urlData := url.Values{}
+		urlData.Set("url", strings)
+		request := getRequest(&urlData)
 		getResponse(request)
 	}
 
@@ -90,9 +90,9 @@ func getParams(dataMetrics *metrics.Metrics) map[string]string {
 
 func getRequest(urlData *url.Values) *http.Request {
 	// Инициализация контекста
-	ctx := context.Background()
-	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	//defer cancel()
+	//ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
 	// Инициализация запроса
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBufferString(urlData.Encode()))
