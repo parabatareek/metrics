@@ -53,9 +53,9 @@ func sendStats(datametrics *metrics.Metrics) {
 		// Формирование данных для отправки
 		urlData := getParams(datametrics)
 		for key, param := range urlData {
-			urlData := url.Values{}
-			urlData.Set(key, param)
-			request := getRequest(&urlData)
+			urlParam := url.Values{}
+			urlParam.Set(key, param)
+			request := getRequest(&urlParam)
 			getResponse(request, client)
 		}
 	}
